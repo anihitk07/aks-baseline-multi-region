@@ -151,17 +151,6 @@ jobs:
         kustomizationPath: 'cluster-manifests/region2/bootstrapping'
         kubectl-version: 'latest'
 
-    # Create the cluster-baseline-settings namespace and deploy Flux into it - Region 2
-    - name: Create the cluster-baseline-settings namespace and deploy Flux - Region 2
-      id: aks-deploy-region2
-      if: success() && env.DEPLOY_REGION2 == 'true'
-      uses: Azure/k8s-deploy@v1
-      with:
-        namespace: 'cluster-baseline-settings'
-        manifests: |
-          cluster-manifests/base/cluster-baseline-settings/ns.yaml
-          ${{ steps.aks-kustomize-region2.outputs.manifestsBundle }}
-
     - name: Azure CLI - Enroll Azure Application Gateway as backend in Azure Front Door - Region 2
       id: enrol-cluster-2
       if: success() && env.DEPLOY_REGION2 == 'true'
@@ -175,3 +164,14 @@ jobs:
           az network front-door backend-pool backend add --address $APPGW_FQDN_BU0001A0042_04 --front-door-name $FRONT_DOOR_NAME --pool-name $FRONT_DOOR_BACKENDPOOL_NAME -g rg-bu0001a0042-shared --backend-host-header $APPGW_FQDN_BU0001A0042_04 --disabled false --http-port 80 --https-port 443  --priority 1 --weight 50
          
         azcliversion: 2.30.0
+        
+    # Create the cluster-baseline-settings namespace and deploy Flux into it - Region 2
+    - name: Create the cluster-baseline-settings namespace and deploy Flux - Region 2
+      id: aks-deploy-region2
+      if: success() && env.DEPLOY_REGION2 == 'true'
+      uses: Azure/k8s-deploy@v1
+      with:
+        namespace: 'cluster-baseline-settings'
+        manifests: |
+          cluster-manifests/base/cluster-baseline-settings/ns.yaml
+          ${{ steps.aks-kustomize-region2.outputs.manifestsBundle }}
